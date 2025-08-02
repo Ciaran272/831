@@ -196,36 +196,39 @@
             transform: scale(1.1);
         }
 
-        /* === 新增：响应式设计媒体查询 === */
+        /* === 响应式设计媒体查询 === */
         @media (max-width: 768px) {
             body {
                 padding: 10px; /* 减小页面边距 */
             }
             .container {
-                padding: 20px; /* 减小容器内边距 */
+                padding: 15px; /* 减小容器内边距 */
             }
             h1 {
                 font-size: 2em; /* 减小标题字号 */
             }
             .members-grid {
-                /* 关键改动：减小卡片最小宽度和间距，以在手机上并排显示 */
-                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-                gap: 15px;
+                /* 关键改动：进一步减小卡片最小宽度和间距，以在手机上容纳3列 */
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+                gap: 12px;
             }
             .member-card {
-                padding: 15px; /* 减小卡片内边距 */
+                padding: 12px; /* 减小卡片内边距 */
+                gap: 10px;
+            }
+            .member-card .member-result {
+                 font-size: 1.2em; /* 调整结果字号 */
+                 padding: 8px;
+            }
+            input[type="text"], input[type="number"] {
+                padding: 8px 10px; /* 减小输入框内边距 */
+                font-size: 0.9em;
             }
             .controls {
                 flex-direction: column; /* 按钮垂直排列，更适合手机操作 */
             }
         }
-        @media (max-width: 360px) {
-             .members-grid {
-                /* 在非常窄的屏幕上，确保每行至少能放两个 */
-                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            }
-        }
-
+        
     </style>
 </head>
 <body>
@@ -264,8 +267,8 @@
 
             card.innerHTML = `
                 ${removeButtonHTML}
-                <input type="text" class="member-name" placeholder="成员 ${memberId} 名称">
-                <input type="number" class="member-time" placeholder="参与小时数" oninput="calculate()">
+                <input type="text" class="member-name" placeholder="成员 ${memberId}">
+                <input type="number" class="member-time" placeholder="小时数" oninput="calculate()">
                 <div class="member-result">¥ 0.00</div>
             `;
             
@@ -317,7 +320,7 @@
 
         // 初始化函数
         function initialize() {
-            // 初始成员减少到2个
+            // 关键改动：初始创建2个成员
             for (let i = 0; i < 2; i++) {
                 createMemberCard(false); // 初始2个成员不可移除
             }
