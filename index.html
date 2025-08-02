@@ -196,6 +196,36 @@
             transform: scale(1.1);
         }
 
+        /* === 新增：响应式设计媒体查询 === */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px; /* 减小页面边距 */
+            }
+            .container {
+                padding: 20px; /* 减小容器内边距 */
+            }
+            h1 {
+                font-size: 2em; /* 减小标题字号 */
+            }
+            .members-grid {
+                /* 关键改动：减小卡片最小宽度和间距，以在手机上并排显示 */
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 15px;
+            }
+            .member-card {
+                padding: 15px; /* 减小卡片内边距 */
+            }
+            .controls {
+                flex-direction: column; /* 按钮垂直排列，更适合手机操作 */
+            }
+        }
+        @media (max-width: 360px) {
+             .members-grid {
+                /* 在非常窄的屏幕上，确保每行至少能放两个 */
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            }
+        }
+
     </style>
 </head>
 <body>
