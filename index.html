@@ -8,7 +8,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* 基础样式 */
         :root {
             --primary-color: #007bff;
             --secondary-color: #6c757d;
@@ -42,7 +41,7 @@
             box-shadow: 0 8px 32px 0 var(--shadow-color);
             backdrop-filter: blur(4px);
             border: 1px solid rgba(255, 255, 255, 0.18);
-            align-self: flex-start; /* 防止在flex容器中被拉伸 */
+            align-self: flex-start; 
         }
 
         h1 {
@@ -103,10 +102,9 @@
             font-size: 1.2em;
         }
         
-        /* 成员网格 - 核心修改 */
+        
         .members-grid {
             display: grid;
-            /* 创建一个严格的3列网格，每列等分剩余空间，自动适应屏幕宽度 */
             grid-template-columns: repeat(3, 1fr);
             gap: 20px;
         }
@@ -136,7 +134,7 @@
             text-align: center;
             border-radius: 10px;
             margin-top: 5px;
-            word-break: break-all; /* 防止金额过长时撑破卡片 */
+            word-break: break-all;
         }
         
         .nice-button {
@@ -192,7 +190,6 @@
             transform: scale(1.1);
         }
 
-        /* 响应式设计媒体查询 - 针对小屏幕优化视觉细节 */
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -203,9 +200,8 @@
             h1 {
                 font-size: 2em;
             }
-            /* 网格布局已在全局设置，此处无需重复 */
             .members-grid {
-                gap: 12px; /* 在小屏幕上减小卡片间距 */
+                gap: 12px; 
             }
             .member-card {
                 padding: 12px;
@@ -229,7 +225,7 @@
 <body>
 
     <div class="container">
-        <h1>分账工具</h1>
+        <h1>AA是好文明</h1>
 
         <div class="total-section">
             <label for="total-amount">💰 总金额 💰</label>
