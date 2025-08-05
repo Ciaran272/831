@@ -8,6 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        
         :root {
             --primary-color: #007bff;
             --secondary-color: #6c757d;
@@ -102,7 +103,6 @@
             font-size: 1.2em;
         }
         
-        
         .members-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -125,16 +125,21 @@
             box-shadow: 0 4px 15px var(--shadow-color);
         }
         
+        
         .member-card .member-result {
-            font-size: 1.5em;
             font-weight: 700;
             color: var(--primary-color);
             background-color: #e7f3ff;
-            padding: 10px;
+            padding: 10px 8px; 
             text-align: center;
             border-radius: 10px;
             margin-top: 5px;
-            word-break: break-all;
+            
+          
+            white-space: nowrap;       
+            overflow: hidden;      
+            text-overflow: ellipsis; 
+            font-size: clamp(0.9rem, 4vw, 1.5rem); 
         }
         
         .nice-button {
@@ -190,6 +195,7 @@
             transform: scale(1.1);
         }
 
+        
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -201,16 +207,13 @@
                 font-size: 2em;
             }
             .members-grid {
-                gap: 12px; 
+                gap: 12px;
             }
             .member-card {
                 padding: 12px;
                 gap: 10px;
             }
-            .member-card .member-result {
-                 font-size: 1.2em;
-                 padding: 8px;
-            }
+            
             input[type="text"], input[type="number"] {
                 padding: 8px 10px;
                 font-size: 0.9em;
