@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        
+        /* 基础样式 */
         :root {
             --primary-color: #007bff;
             --secondary-color: #6c757d;
@@ -125,21 +125,18 @@
             box-shadow: 0 4px 15px var(--shadow-color);
         }
         
-        
         .member-card .member-result {
             font-weight: 700;
             color: var(--primary-color);
             background-color: #e7f3ff;
-            padding: 10px 8px; 
+            padding: 10px 8px;
             text-align: center;
             border-radius: 10px;
             margin-top: 5px;
-            
-          
-            white-space: nowrap;       
-            overflow: hidden;      
-            text-overflow: ellipsis; 
-            font-size: clamp(0.9rem, 4vw, 1.5rem); 
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: clamp(0.9rem, 4vw, 1.5rem);
         }
         
         .nice-button {
@@ -173,29 +170,7 @@
         .add-btn { background-color: var(--primary-color); }
         .reset-btn { background-color: var(--secondary-color); }
 
-        .remove-btn {
-            position: absolute;
-            top: 8px;
-            right: 8px;
-            width: 28px;
-            height: 28px;
-            background-color: var(--danger-color);
-            color: white;
-            border: none;
-            border-radius: 50%;
-            font-size: 16px;
-            line-height: 28px;
-            text-align: center;
-            cursor: pointer;
-            transition: background-color 0.2s, transform 0.2s;
-            font-weight: 700;
-        }
-        .remove-btn:hover {
-            background-color: #e54e4e;
-            transform: scale(1.1);
-        }
-
-        
+       
         @media (max-width: 768px) {
             body {
                 padding: 10px;
@@ -213,7 +188,6 @@
                 padding: 12px;
                 gap: 10px;
             }
-            
             input[type="text"], input[type="number"] {
                 padding: 8px 10px;
                 font-size: 0.9em;
@@ -249,7 +223,8 @@
         const membersContainer = document.getElementById('members-container');
         let memberCounter = 0;
 
-        function createMemberCard(isRemovable = false) {
+        // === 简化函数 ===
+        function createMemberCard() {
             memberCounter++;
             const memberId = memberCounter;
             
@@ -257,10 +232,7 @@
             card.className = 'member-card';
             card.id = `member-card-${memberId}`;
             
-            let removeButtonHTML = isRemovable ? `<button class="remove-btn" onclick="removeMember(${memberId})">-</button>` : '';
-
             card.innerHTML = `
-                ${removeButtonHTML}
                 <input type="text" class="member-name" placeholder="成员 ${memberId}">
                 <input type="number" class="member-time" placeholder="小时数" oninput="calculate()">
                 <div class="member-result">¥ 0.00</div>
@@ -270,16 +242,10 @@
         }
 
         function addMember() {
-            createMemberCard(true);
+            createMemberCard();
         }
 
-        function removeMember(memberId) {
-            const cardToRemove = document.getElementById(`member-card-${memberId}`);
-            if (cardToRemove) {
-                cardToRemove.remove();
-                calculate();
-            }
-        }
+        // === 简化函数 ===
 
         function calculate() {
             const totalAmount = parseFloat(document.getElementById('total-amount').value) || 0;
@@ -316,7 +282,7 @@
         function initialize() {
             // 初始创建2个成员
             for (let i = 0; i < 2; i++) {
-                createMemberCard(false); // 初始2个成员不可移除
+                createMemberCard();
             }
         }
         
