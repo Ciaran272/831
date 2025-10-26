@@ -126,7 +126,6 @@
             font-weight: 700;
             display: block;
             margin-bottom: 10px;
-            color: inherit;
         }
         .total-section input {
             text-align: center;
@@ -151,6 +150,31 @@
             position: relative;
             width: fit-content;
             margin: 0 auto;
+            animation: slideIn 0.3s ease-out;
+            transition: all 0.3s ease;
+        }
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        .member-card.removing {
+            animation: slideOut 0.3s ease-in forwards;
+        }
+        @keyframes slideOut {
+            from {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+            to {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
         }
         .member-card .member-result {
             font-weight: 700;
@@ -231,6 +255,7 @@
             border-radius: 8px;
             box-shadow: 0 0 0 2px var(--primary-color);
         }
+        /* 移动端优化 */
         @media (max-width: 768px) {
             body { 
                 padding: 10px;
@@ -273,6 +298,8 @@
             #member-count-input {
                 width: 55px;
                 font-size: 1.1em;
+                -webkit-touch-callout: none;
+                -webkit-tap-highlight-color: transparent;
             }
         }
         @media (max-width: 480px) {
@@ -298,16 +325,16 @@
 
         <div class="total-section">
             <label for="total-amount">💰 总金额 💰</label>
-            <input type="number" id="total-amount" placeholder="输入总费用">
+            <input type="number" id="total-amount" placeholder="输入总费用" min="0" step="0.01">
         </div>
 
         <div class="members-grid" id="members-container"></div>
 
         <div class="controls">
             <div class="member-counter-control">
-                <button class="counter-btn counter-btn--minus" onclick="decrementMembers()" id="minus-btn">−</button>
-                <input type="number" id="member-count-input" value="2" min="0" max="99" oninput="setMemberCount()" onfocus="this.select()" onclick="this.select()">
-                <button class="counter-btn counter-btn--plus" onclick="incrementMembers()">+</button>
+                <button class="counter-btn" onclick="removeMember()" id="minus-btn">−</button>
+                <input type="number" id="member-count-input" value="5" min="0" max="99" inputmode="numeric" oninput="setMemberCount()">
+                <button class="counter-btn" onclick="addMember()">+</button>
             </div>
         </div>
     </div>
@@ -318,8 +345,9 @@
         function debounce(fn, delay){
             let timer; 
             return function(...args){
+                const context = this;
                 clearTimeout(timer);
-                timer = setTimeout(()=>fn.apply(this,args), delay);
+                timer = setTimeout(()=>fn.apply(context,args), delay);
             };
         }
         const debouncedCalculate = debounce(calculate, 150);
@@ -343,16 +371,13 @@
                     window.scrollTo(0, window.scrollY + diff);
                     attempts++;
                     
-                    // 如果位置还在变化，继续检查
                     if (Math.abs(diff - lastDiff) > 0.1) {
                         lastDiff = diff;
                         requestAnimationFrame(checkAndAdjust);
                     } else if (attempts < 5) {
-                        // 前5次强制继续检查
                         requestAnimationFrame(checkAndAdjust);
                     }
                 } else if (attempts < 3) {
-                    // 即使差异小，前3次也继续检查
                     attempts++;
                     requestAnimationFrame(checkAndAdjust);
                 }
@@ -366,7 +391,7 @@
             });
         }
 
-        function addMember(updateInput = true) {
+        function addMember(updateInput = true, shouldCalculate = true) {
             // 在移动端记录按钮位置
             const controls = document.querySelector('.controls');
             let buttonAbsoluteTopBeforeAdd = null;
@@ -381,14 +406,16 @@
             card.className = 'member-card';
             card.innerHTML = `
                 <input type="text" class="member-name" placeholder="成员 ${memberId}">
-                <input type="number" class="member-time" placeholder="小时数">
+                <input type="number" class="member-time" placeholder="小时数" min="0" step="0.1">
                 <div class="member-result">¥ 0.00</div>
             `;
             membersContainer.appendChild(card);
             if (updateInput) {
                 updateMemberCountInput();
             }
-            calculate();
+            if (shouldCalculate) {
+                calculate();
+            }
             
             // 在移动端调整滚动位置，保持按钮在原位
             if (window.innerWidth <= 768 && controls && buttonAbsoluteTopBeforeAdd !== null) {
@@ -396,8 +423,9 @@
             }
         }
 
-        function removeMember(updateInput = true) {
-            const memberCards = document.querySelectorAll('.member-card');
+        function removeMember(updateInput = true, shouldCalculate = true) {
+            // 只查询未被删除的成员
+            const memberCards = document.querySelectorAll('.member-card:not(.removing)');
             if (memberCards.length > 0) {
                 // 在移动端记录按钮位置
                 const controls = document.querySelector('.controls');
@@ -407,29 +435,29 @@
                     buttonAbsoluteTopBeforeRemove = rect.top + window.scrollY;
                 }
                 
-                memberCards[memberCards.length - 1].remove();
+                const lastCard = memberCards[memberCards.length - 1];
+                lastCard.classList.add('removing');
+                
+                // 立即更新计数器
                 if (updateInput) {
                     updateMemberCountInput();
                 }
-                calculate();
-                
-                // 在移动端调整滚动位置，保持按钮在原位
-                if (window.innerWidth <= 768 && controls && buttonAbsoluteTopBeforeRemove !== null) {
-                    maintainButtonPosition(controls, buttonAbsoluteTopBeforeRemove);
+                if (shouldCalculate) {
+                    calculate();
                 }
+                
+                setTimeout(() => {
+                    lastCard.remove();
+                    
+                    if (window.innerWidth <= 768 && controls && buttonAbsoluteTopBeforeRemove !== null) {
+                        maintainButtonPosition(controls, buttonAbsoluteTopBeforeRemove);
+                    }
+                }, 300); // 与动画时长一致
             }
         }
 
-        function incrementMembers() {
-            addMember();
-        }
-
-        function decrementMembers() {
-            removeMember();
-        }
-
         function getCurrentMemberCount() {
-            return document.querySelectorAll('.member-card').length;
+            return document.querySelectorAll('.member-card:not(.removing)').length;
         }
 
         function updateMemberCountInput() {
@@ -441,12 +469,7 @@
 
         function updateMinusButtonState() {
             const count = getCurrentMemberCount();
-            const minusBtn = document.getElementById('minus-btn');
-            if (count === 0) {
-                minusBtn.disabled = true;
-            } else {
-                minusBtn.disabled = false;
-            }
+            document.getElementById('minus-btn').disabled = (count === 0);
         }
 
         function setMemberCount() {
@@ -462,34 +485,54 @@
             const difference = targetCount - currentCount;
             
             if (difference > 0) {
-                // 需要增加成员
+                // 需要增加成员（批量操作，不每次计算）
                 for (let i = 0; i < difference; i++) {
-                    addMember(false);
+                    addMember(false, false);
                 }
             } else if (difference < 0) {
-                // 需要减少成员
+                // 需要减少成员（批量操作，不每次计算）
                 for (let i = 0; i < Math.abs(difference); i++) {
-                    removeMember(false);
+                    removeMember(false, false);
                 }
             }
-            updateMinusButtonState();
+            
+            // 批量操作完成后，统一更新和计算
+            updateMemberCountInput();
+            calculate();
+        }
+
+        function validateNumberInput(input) {
+            let value = parseFloat(input.value);
+            if (isNaN(value) || value < 0) {
+                input.value = '';
+                return 0;
+            }
+            return value;
         }
 
         function calculate() {
-            const totalAmount = parseFloat(document.getElementById('total-amount').value) || 0;
-            const memberCards = document.querySelectorAll('.member-card');
+            const totalAmountInput = document.getElementById('total-amount');
+            const totalAmount = validateNumberInput(totalAmountInput);
+            // 只计算未被删除的成员
+            const memberCards = document.querySelectorAll('.member-card:not(.removing)');
             let totalHours = 0;
-            const hoursPerMember = [];
+            const memberData = [];
+            
+            // 第一次遍历：收集数据并计算总工时
             memberCards.forEach(card => {
                 const timeInput = card.querySelector('.member-time');
-                const hours = parseFloat(timeInput.value) || 0;
-                hoursPerMember.push(hours);
+                const resultElement = card.querySelector('.member-result');
+                const hours = validateNumberInput(timeInput);
+                memberData.push({ hours, resultElement });
                 totalHours += hours;
             });
+            
+            // 计算每小时费率
             const costPerHour = (totalAmount > 0 && totalHours > 0) ? totalAmount / totalHours : 0;
-            memberCards.forEach((card, index) => {
-                const memberCost = hoursPerMember[index] * costPerHour;
-                const resultElement = card.querySelector('.member-result');
+            
+            // 第二次遍历：更新显示结果（使用已收集的数据）
+            memberData.forEach(({ hours, resultElement }) => {
+                const memberCost = hours * costPerHour;
                 const display = memberCost === 0
                     ? '0.00'
                     : memberCost.toFixed(2).replace(/\.00$/, '');
@@ -504,7 +547,6 @@
             addMember();
             addMember();
             updateMemberCountInput();
-            updateMinusButtonState();
         }
 
         function editTitle() {
@@ -569,6 +611,36 @@
             }
         });
         document.getElementById('title-editor').addEventListener('input', adjustEditorWidth);
+
+        (function() {
+            const input = document.getElementById('member-count-input');
+            const isMobile = 'ontouchstart' in window;
+            
+            if (isMobile) {
+                // 阻止上下文菜单（长按菜单）
+                input.addEventListener('contextmenu', function(e) {
+                    e.preventDefault();
+                    return false;
+                }, { passive: false });
+                
+                // 点击时选中全部内容
+                input.addEventListener('click', function() {
+                    this.select();
+                });
+                
+                // 聚焦时选中全部内容
+                input.addEventListener('focus', function() {
+                    setTimeout(() => this.select(), 0);
+                });
+            } else {
+                input.addEventListener('focus', function() {
+                    this.select();
+                });
+                input.addEventListener('click', function() {
+                    this.select();
+                });
+            }
+        })();
     </script>
 </body>
 </html>
